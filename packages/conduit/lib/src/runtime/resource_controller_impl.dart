@@ -297,7 +297,7 @@ class ResourceControllerRuntimeImpl extends ResourceControllerRuntime {
           return reflect(rc)
               .invoke(symbol, args.positionalArguments,
                   args.namedArguments.map((k, v) => MapEntry(Symbol(k), v)))
-              .reflectee as Future<Response>?;
+              .reflectee as Future<Response?>;
         });
   }
 }

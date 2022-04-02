@@ -54,7 +54,7 @@ class ResourceControllerOperation {
   final List<ResourceControllerParameter> positionalParameters;
   final List<ResourceControllerParameter> namedParameters;
 
-  final Future<Response>? Function(ResourceController resourceController,
+  final Future<Response?> Function(ResourceController resourceController,
       ResourceControllerOperationInvocationArgs args) invoker;
 
   /// Checks if a request's method and path variables will select this binder.
