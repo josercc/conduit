@@ -8,6 +8,10 @@ command:
   version:
     linkToCommits: true
 scripts:
+  test-with-coverage:
+    run: melos exec --ignore "*common*" --ignore "*application*" -- "dart $MELOS_ROOT_PATH/utils/unused_port.dart | dart pub global run coverage:test_with_coverage --port -"
+    select-pacakge:
+      no-private: true
   analyze: melos exec -- pub global run tuneup check
   cache-source:
     run: melos exec -- "cp -r '\$MELOS_PACKAGE_PATH' '$PUB_CACHE/hosted/pub.dartlang.org/\$MELOS_PACKAGE_NAME-\$MELOS_PACKAGE_VERSION'"
