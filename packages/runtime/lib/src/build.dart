@@ -55,7 +55,6 @@ class Build {
       final sourceDirUri = packageInfo.uri;
       final targetDirUri =
           context.buildPackagesDirectory.uri.resolve("${packageInfo.name}/");
-
       print("Compiling package '${packageInfo.name}'...");
       copyPackage(sourceDirUri, targetDirUri);
       compiler.deflectPackage(Directory.fromUri(targetDirUri));
@@ -118,15 +117,12 @@ class Build {
 
   Future getDependencies() async {
     const String cmd = "dart";
-
     final res = await Process.run(
         cmd, ["pub", "get", "--offline", "--no-precompile"],
         workingDirectory:
             context.buildDirectoryUri.toFilePath(windows: Platform.isWindows),
         runInShell: true);
     if (res.exitCode != 0) {
-      print("${res.stdout}");
-      print("${res.stderr}");
       throw StateError(
           "'pub get' failed with the following message: ${res.stderr}");
     }
@@ -154,7 +150,7 @@ class Build {
   }
 
   void copyPackage(Uri srcUri, Uri dstUri) {
-    copyDirectory(src: srcUri.resolve("lib/"), dst: dstUri.resolve("lib/"));
+    copyDirectory(src: srcUri, dst: dstUri);
     context.getFile(srcUri.resolve("pubspec.yaml")).copySync(
         dstUri.resolve("pubspec.yaml").toFilePath(windows: Platform.isWindows));
   }
@@ -165,8 +161,7 @@ class Build {
       throw StateError(
           'Package "$packageName" not found in package map. Make sure it is in dependencies and run "pub get".');
     }
-
-    return _PackageInfo(packageName, packageUri);
+    return _PackageInfo(packageName, Directory.fromUri(packageUri).parent.uri);
   }
 
   _PackageInfo _getPackageInfoForCompiler(Compiler compiler) {

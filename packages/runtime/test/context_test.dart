@@ -5,7 +5,6 @@ import 'package:path/path.dart';
 import 'package:test/test.dart';
 
 void main() {
-  print(absolute(Directory.current.uri.toFilePath()));
   final absolutePathToAppLib = normalize(absolute(join(Directory.current.uri
       .resolve("../")
       .resolve("runtime_test_packages/")
@@ -22,7 +21,6 @@ void main() {
       cmd = (await Process.run("which", ["pub"])).stdout;
     }
 
-    print(Directory.current.uri);
     final testPackagesUri =
         Directory.current.uri.resolve("../").resolve("runtime_test_packages/");
     await Process.run(cmd, ["get", "--offline"],

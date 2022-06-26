@@ -28,12 +28,12 @@ class BuildContext {
       Uri.parse(map['buildDirectoryUri'] as String),
       Uri.parse(map['executableUri'] as String),
       map['source'] as String,
-      forTests: map['forTests'] as bool? ?? false,
+      forTests: map['forTests'] ?? false,
     );
   }
 
   Map<String, dynamic> get safeMap => {
-        'rootLibraryFileUri': sourceLibraryFile.uri.toString(),
+        'rootLibraryFileUri': rootLibraryFileUri.toString(),
         'buildDirectoryUri': buildDirectoryUri.toString(),
         'source': source,
         'executableUri': executableUri.toString(),
@@ -78,13 +78,10 @@ class BuildContext {
 
   /// The directory of the application being compiled.
   Directory get sourceApplicationDirectory =>
-      getDirectory(rootLibraryFileUri.resolve("../"));
-
-  /// The library file of the application being compiled.
-  File get sourceLibraryFile => getFile(rootLibraryFileUri);
+      getDirectory(rootLibraryFileUri).parent;
 
   /// The directory where build artifacts are stored.
-  Directory get buildDirectory => getDirectory(buildDirectoryUri);
+  Directory get buildDirectory => Directory.fromUri(buildDirectoryUri);
 
   /// The generated runtime directory
   Directory get buildRuntimeDirectory =>
@@ -101,13 +98,15 @@ class BuildContext {
   /// Gets dependency package location relative to [sourceApplicationDirectory].
   Map<String, Uri> get resolvedPackages {
     return getResolvedPackageUris(
-        sourceApplicationDirectory.uri.resolve(".packages"),
-        relativeTo: sourceApplicationDirectory.uri);
+        sourceApplicationDirectory.uri
+            .resolve(".dart_tool/package_config.json"),
+        relativeTo: sourceApplicationDirectory.uri
+            .resolve(".dart_tool/package_config.json"));
   }
 
   /// Returns a [Directory] at [uri], creates it recursively if it doesn't exist.
   Directory getDirectory(Uri uri) {
-    final dir = Directory.fromUri(uri);
+    final dir = Directory.fromUri(uri).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
@@ -131,7 +130,7 @@ class BuildContext {
     var outputUri = uri;
     if (outputUri.scheme == "package") {
       final segments = outputUri.pathSegments;
-      outputUri = resolvedPackages[segments.first]!.resolve("lib/");
+      outputUri = resolvedPackages[segments.first]!;
       for (var i = 1; i < segments.length; i++) {
         if (i < segments.length - 1) {
           outputUri = outputUri.resolve("${segments[i]}/");

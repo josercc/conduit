@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 /// Recursively copies the contents of the directory at [src] to [dst].
@@ -24,7 +25,7 @@ void copyDirectory({required Uri src, required Uri dst}) {
   });
 }
 
-/// Reads .packages file from [packagesFileUri] and returns map of package name to its location on disk.
+/// Reads .dart_tool/package_config.json file from [packagesFileUri] and returns map of package name to its location on disk.
 ///
 /// If locations on disk are relative Uris, they are resolved by [relativeTo]. [relativeTo] defaults
 /// to the CWD.
@@ -33,31 +34,31 @@ Map<String, Uri> getResolvedPackageUris(
   Uri? relativeTo,
 }) {
   final _relativeTo = relativeTo ?? Directory.current.uri;
-
   final packagesFile = File.fromUri(packagesFileUri);
   if (!packagesFile.existsSync()) {
     throw StateError(
-      "No .packages file found at '$packagesFileUri'. "
+      "No .dart_tool/package_config.json file found at '$packagesFileUri'. "
       "Run 'pub get' in directory '${packagesFileUri.resolve('../')}'.",
     );
   }
-  return Map.fromEntries(packagesFile
-      .readAsStringSync()
-      .split("\n")
-      .where((s) => !s.trimLeft().startsWith("#"))
-      .where((s) => s.trim().isNotEmpty)
-      .map((s) {
-    final packageName = s.substring(0, s.indexOf(":"));
-    final uri = Uri.parse(s.substring("$packageName:".length));
 
+  String input = packagesFile.readAsStringSync();
+  List packages = jsonDecode(input)['packages'];
+  return Map.fromEntries(packages.map((p) {
+    String rootUri = p['rootUri'];
+    Uri uri = Uri.parse(rootUri);
+    final packageName = p['name'];
     if (uri.isAbsolute) {
-      return MapEntry(packageName, Directory.fromUri(uri).parent.uri);
+      return MapEntry(packageName,
+          Directory.fromUri(uri.resolve(p['packageUri'])).parent.uri);
     }
 
-    return MapEntry(
-        packageName,
-        Directory.fromUri(_relativeTo.resolveUri(uri).normalizePath())
-            .parent
-            .uri);
+    uri = Uri.parse(rootUri);
+    String catPath = '${_relativeTo.resolveUri(uri).toFilePath()}';
+    if (catPath.endsWith('/')) {
+      catPath = catPath.substring(0, catPath.length - 1);
+    }
+    catPath = '$catPath/${p['packageUri']}';
+    return MapEntry(packageName, Uri.parse(catPath).normalizePath());
   }));
 }

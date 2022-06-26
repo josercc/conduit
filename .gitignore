@@ -23,7 +23,6 @@ release.yaml
 tmp/
 conduit/foobar
 conduit/migrations
-conduit/tool/.settings.yaml
 **/.history
 **/*.dart.vm.json
 stackoverflow
