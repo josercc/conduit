@@ -4,6 +4,7 @@ packages:
   - packages/**
 ignore:
   - packages/conduit/templates/**
+  - packages/tmp/**
 command:
   version:
     linkToCommits: true

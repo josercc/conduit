@@ -42,7 +42,7 @@ void main() {
   });
 
   tearDownAll(() {
-    Directory.fromUri(tmp).deleteSync(recursive: true);
+    // Directory.fromUri(tmp).deleteSync(recursive: true);
   });
 
   test("Non-compiled version returns mirror runtimes", () async {
@@ -89,5 +89,6 @@ Future<String> runExecutable(Uri buildUri, Uri workingDir) async {
       buildUri.toFilePath(windows: Platform.isWindows), [],
       workingDirectory: workingDir.toFilePath(windows: Platform.isWindows),
       runInShell: true);
+  print(result.stderr.toString());
   return result.stdout.toString();
 }

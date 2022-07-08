@@ -154,9 +154,9 @@ class ManagedEntityRuntimeImpl extends ManagedEntityRuntime
     return [];
   }
 
-  String _getValidators(
+  Future<String> _getValidators(
       BuildContext context, ManagedPropertyDescription property,
-      {required List<Uri> importUris}) {
+      {required List<Uri> importUris}) async {
     // For the property we are looking at, grab all of its annotations from the analyzer.
     // We also have all of the instances created by these annotations available in some
     // way or another in the [property].
@@ -165,7 +165,7 @@ class ManagedEntityRuntimeImpl extends ManagedEntityRuntime
             .reflectedType,
         property.name);
 
-    final constructorInvocations = fieldAnnotations
+    final constructorInvocations = (await fieldAnnotations)
         .map((annotation) => _getValidatorConstructionFromAnnotation(
             context, annotation, property,
             importUris: importUris))
@@ -389,7 +389,7 @@ return entity.symbolMap[Symbol(symbolName)];
   }
 
   @override
-  String compile(BuildContext ctx) {
+  Future<String> compile(BuildContext ctx) async {
     final importUris = <Uri>[];
 
     final className = "${MirrorSystem.getName(instanceType.simpleName)}";

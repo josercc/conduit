@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 /// Recursively copies the contents of the directory at [src] to [dst].
@@ -23,42 +22,4 @@ void copyDirectory({required Uri src, required Uri dst}) {
       copyDirectory(src: fse.uri, dst: outPath);
     }
   });
-}
-
-/// Reads .dart_tool/package_config.json file from [packagesFileUri] and returns map of package name to its location on disk.
-///
-/// If locations on disk are relative Uris, they are resolved by [relativeTo]. [relativeTo] defaults
-/// to the CWD.
-Map<String, Uri> getResolvedPackageUris(
-  Uri packagesFileUri, {
-  Uri? relativeTo,
-}) {
-  final _relativeTo = relativeTo ?? Directory.current.uri;
-  final packagesFile = File.fromUri(packagesFileUri);
-  if (!packagesFile.existsSync()) {
-    throw StateError(
-      "No .dart_tool/package_config.json file found at '$packagesFileUri'. "
-      "Run 'pub get' in directory '${packagesFileUri.resolve('../')}'.",
-    );
-  }
-
-  String input = packagesFile.readAsStringSync();
-  List packages = jsonDecode(input)['packages'];
-  return Map.fromEntries(packages.map((p) {
-    String rootUri = p['rootUri'];
-    Uri uri = Uri.parse(rootUri);
-    final packageName = p['name'];
-    if (uri.isAbsolute) {
-      return MapEntry(packageName,
-          Directory.fromUri(uri.resolve(p['packageUri'])).parent.uri);
-    }
-
-    uri = Uri.parse(rootUri);
-    String catPath = '${_relativeTo.resolveUri(uri).toFilePath()}';
-    if (catPath.endsWith('/')) {
-      catPath = catPath.substring(0, catPath.length - 1);
-    }
-    catPath = '$catPath/${p['packageUri']}';
-    return MapEntry(packageName, Uri.parse(catPath).normalizePath());
-  }));
 }

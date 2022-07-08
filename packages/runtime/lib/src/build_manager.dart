@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:package_config/package_config.dart';
 import 'package:conduit_isolate_exec/conduit_isolate_exec.dart';
 import 'package:conduit_runtime/runtime.dart';
 
@@ -56,7 +57,7 @@ class BuildManager {
     await IsolateExecutor.run(
       BuildExecutable(context.safeMap),
       packageConfigURI:
-          sourceDirectoryUri.resolve(".dart_tool/package_config.json"),
+          sourceDirectoryUri.resolve('.dart_tool/package_config.json'),
       imports: [
         "package:conduit_runtime/runtime.dart",
         context.targetScriptFileUri.toString()
