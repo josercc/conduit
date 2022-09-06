@@ -160,7 +160,8 @@ class AuthServer implements AuthValidator, APIComponentDocumenter {
   Future<AuthToken> authenticate(String? username, String? password,
       String? clientID, String? clientSecret,
       {Duration expiration = const Duration(hours: 24),
-      List<AuthScope>? requestedScopes}) async {
+      List<AuthScope>? requestedScopes,
+      bool isHashPassword = false}) async {
     if (clientID == null) {
       throw AuthServerException(AuthRequestError.invalidClient, null);
     }
@@ -195,7 +196,7 @@ class AuthServer implements AuthValidator, APIComponentDocumenter {
 
     final dbSalt = authenticatable.salt!;
     final dbPassword = authenticatable.hashedPassword;
-    final hash = hashPassword(password, dbSalt);
+    final hash = isHashPassword ? password : hashPassword(password, dbSalt);
     if (hash != dbPassword) {
       throw AuthServerException(AuthRequestError.invalidGrant, client);
     }
