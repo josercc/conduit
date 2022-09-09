@@ -362,9 +362,12 @@ class ManagedObjectController<InstanceType extends ManagedObject>
   @override
   Map<String, APIResponse> documentOperationResponses(
       APIDocumentContext context, Operation? operation) {
-    switch (operation!.method) {
+    if (operation?.method == null) {
+      return {};
+    }
+    switch (operation?.method) {
       case "GET":
-        if (operation.pathVariables.isEmpty) {
+        if (operation?.pathVariables.isEmpty ?? false) {
           return {
             "200": APIResponse.schema(
                 "Returns a list of objects.",
@@ -419,12 +422,12 @@ class ManagedObjectController<InstanceType extends ManagedObject>
     if (path.parameters
         .where((p) => p!.location == APIParameterLocation.path)
         .isNotEmpty) {
-      ops["get"]!.id = "get$entityName";
-      ops["put"]!.id = "update$entityName";
-      ops["delete"]!.id = "delete$entityName";
+      ops["get"]?.id = "get$entityName";
+      ops["put"]?.id = "update$entityName";
+      ops["delete"]?.id = "delete$entityName";
     } else {
-      ops["get"]!.id = "get${entityName}s";
-      ops["post"]!.id = "create$entityName";
+      ops["get"]?.id = "get${entityName}s";
+      ops["post"]?.id = "create$entityName";
     }
 
     return ops;
